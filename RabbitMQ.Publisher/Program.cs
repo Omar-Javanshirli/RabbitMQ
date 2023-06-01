@@ -1,5 +1,6 @@
 ﻿using RabbitMQ.Client;
 using System;
+using System.Linq;
 using System.Text;
 
 namespace RabbitMQ.Publisher
@@ -23,15 +24,20 @@ namespace RabbitMQ.Publisher
             //aftomatic sekilde silecek.
             channel.QueueDeclare("hello-queue", true, false, false);
 
-            string message = "hello world";
+            Enumerable.Range(1, 50).ToList().ForEach(x =>
+            {
+                string message = $"Message {x}";
 
-            //Mesaji byte-lara ceviririk
-            var messageBody = Encoding.UTF8.GetBytes(message);
+                //Mesaji byte-lara ceviririk
+                var messageBody = Encoding.UTF8.GetBytes(message);
 
-            //messaji Novbeye gonderirik
-            channel.BasicPublish(string.Empty, "hello-queue", null, messageBody);
+                //messaji Novbeye gonderirik
+                channel.BasicPublish(string.Empty, "hello-queue", null, messageBody);
 
-            Console.WriteLine("Sended message");
+                Console.WriteLine($"Sended message: {message}");
+            });
+
+           
             Console.ReadLine();
         }
     }
