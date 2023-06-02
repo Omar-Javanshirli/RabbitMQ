@@ -36,6 +36,9 @@ namespace RabbitMQ.Publisher
             var properties=channel.CreateBasicProperties();
             properties.Headers = headers;
 
+            //Mesajlarin silinmemesi ucun yazilmalidir.
+            properties.Persistent = true;
+
             //mesajin gonderilmesi.
             channel.BasicPublish("header-exchange", string.Empty, properties,Encoding.UTF8.GetBytes("header mesajlari"));
 

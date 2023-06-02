@@ -29,7 +29,7 @@ namespace RabbitMQ.Subscriber
             headers.Add("shape", "a4");
             headers.Add("x-match", "all");
 
-            channel.QueueBind(queueName,"header-exchange",string.Empty,headers);
+            channel.QueueBind(queueName,"header-exchange",string.Empty,headers) ;
 
             Console.WriteLine("Loglari dinliyorun..."); 
 
