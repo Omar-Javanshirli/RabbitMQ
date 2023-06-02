@@ -21,7 +21,7 @@ namespace RabbitMQ.Subscriber
             //Random Novbe adi yaradirig
             var randomQueueName = channel.QueueDeclare().QueueName;
 
-            //Eger ki novebnin silinmiyen isderilse bu kod ile yazmag lazimdir ver ramdom name vermak lazim deyil
+            //Eger ki novebnin silinmeyin isdemirikse  bu kod ile yazmag lazimdir ver ramdom name vermak lazim deyil
             //channel.QueueDeclare(randomQueueName, true, false, false);
 
             //Novebeni Exchange bind edirik. Bind etdiyimiz zaman Declare etmekden ferqi odu ki Cunsumerin isi bitdiyi zaman 
