@@ -1,6 +1,7 @@
 ﻿using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading;
@@ -20,17 +21,18 @@ namespace RabbitMQ.Subscriber
 
 
             channel.BasicQos(0, 1, false);
-
             var consumer = new EventingBasicConsumer(channel);
             var queueName = channel.QueueDeclare().QueueName;
 
-            var routeKey = "*.Error.*"; //ortasinda Error olanlari bildirir evveli ve sonunun onemi yoxdur
-            var routeKey2 = "*.*.Warning"; //sonu Warningle bitinleri bildirir.
-            var routeKey3 = "Info.#"; //Evveli Info olsun sonu ne olur olsun.
+            Dictionary<string, object> headers = new();
+            headers.Add("format", "pdf");
+            headers.Add("shape", "a4");
+            headers.Add("x-match", "all");
 
-            channel.QueueBind(queueName, "logs-topic", routeKey3);
+            channel.QueueBind(queueName,"header-exchange",string.Empty,headers);
 
             Console.WriteLine("Loglari dinliyorun..."); 
+
             channel.BasicConsume(queueName, false, consumer);
 
             consumer.Received += (object sender, BasicDeliverEventArgs e) =>

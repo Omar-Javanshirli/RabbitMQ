@@ -1,5 +1,6 @@
 ﻿using RabbitMQ.Client;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
@@ -24,27 +25,21 @@ namespace RabbitMQ.Publisher
             var channel = connection.CreateModel();
 
             //Exchange yaratmag.
-            channel.ExchangeDeclare("logs-topic", ExchangeType.Topic, durable: true);
+            channel.ExchangeDeclare("header-exchange", ExchangeType.Headers, durable: true);
 
+            //headeri yaratmaq
+            Dictionary<string, object> headers = new();
+            headers.Add("format", "pdf");
+            headers.Add("shape", "a4");
 
-            Random rmd = new Random();
-            Enumerable.Range(1, 50).ToList().ForEach(x =>
-            {
-                LogNames log1 = (LogNames)rmd.Next(1, 5);
-                LogNames log2 = (LogNames)rmd.Next(1, 5);
-                LogNames log3 = (LogNames)rmd.Next(1, 5);
+            //properti yaradirig. bu properti vasitesi ile headeri gonderirik.
+            var properties=channel.CreateBasicProperties();
+            properties.Headers = headers;
 
-                var rootKey = $"{log1}.{log2}.{log3}";
-                string message = $"log-type :  {log1}-{log2}-{log3}";
+            //mesajin gonderilmesi.
+            channel.BasicPublish("header-exchange", string.Empty, properties,Encoding.UTF8.GetBytes("header mesajlari"));
 
-                //Mesaji byte-lara ceviririk
-                var messageBody = Encoding.UTF8.GetBytes(message);
-
-                //messaji Novbeye gonderirik
-                channel.BasicPublish("logs-topic", rootKey, null, messageBody);
-                Console.WriteLine($"Sended log: {message}");
-            });
-
+            Console.WriteLine("mesaj gonderilmisdir.");
             Console.ReadLine();
         }
     }
