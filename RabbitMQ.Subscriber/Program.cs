@@ -35,7 +35,7 @@ namespace RabbitMQ.Subscriber
                  Thread.Sleep(1500);
                  Console.WriteLine("Gelen mesaj: " + message);
 
-                 File.AppendAllText("log-critical.txt", message + "\n");
+                 //File.AppendAllText("log-critical.txt", message + "\n");
 
                  channel.BasicAck(e.DeliveryTag, false);
              };
