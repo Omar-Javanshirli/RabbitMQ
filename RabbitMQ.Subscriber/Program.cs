@@ -17,13 +17,14 @@ namespace RabbitMQ.Subscriber
             using var connection = factory.CreateConnection();
             var channel = connection.CreateModel();
 
-            //Novbe yaradirig. RabbitMQ-de datalar Memoryde tutulur. Yani komputere restart verildiyi zaman datalar itecek
-            //Eger bunun olmagin istemirikse bool durable adli ikinci parametri True etdiyimiz zaman Novbelerimiz fiziki olarag
-            //save edilecek komputere restart versek bele datalar silinmiyecek.
-            //bool Exclusive => bu parmetri True versem Burdaki Novbeye sadace yuxarida yaranmis channel ile baglana bilerik.
-            //bool AutoDelete => 4-cu parmatir olarag qebul edir. Eger bu Novbeye son Subscriber baglantisini keserse Novbeni 
-            //aftomatic sekilde silecek.
-            channel.QueueDeclare("hello-queue", true, false, false);
+
+            //Random Novbe adi yaradirig
+            var randomQueueName = channel.QueueDeclare().QueueName;
+
+            //Novebeni Exchange bind edirik. Bind etdiyimiz zaman Declare etmekden ferqi odu ki Cunsumerin isi bitdiyi zaman 
+            //elaqeli Novbenide silicek.Declare etdiyimiz zaman Novbe silinmir qalir.
+            channel.QueueBind(randomQueueName, "logs-fanout", "", null);
+
 
             //Her bir Subscribere nece dene mesaj gedeciyinin bolgusun bu method ile ediriy.
             //Qebul ediler ilk parametir gonderilen mesajin olcusunu bildirir "0" yazasaq bu o demekdir ki
@@ -39,10 +40,13 @@ namespace RabbitMQ.Subscriber
             //Subscriber(consumer) yaradirig
             var consumer = new EventingBasicConsumer(channel);
 
+            //Consumer ile Novbe arasinda ki baglantini qurmag ucun asagidaki koddan istifade olunur.
             //bool AutoAck => adli ikinci paremtire Eger ki True versek  RabbitMQ Subscribere bir mesaj gonderiyi zaman
             //bu mesaj dogruda olsa yanlisda olsa Novbeden silinecek. Eger ki bunu false versey biz demis oluruq ki 
             //sen bunu novbeden silme eger ki mesaj dogru olsa men seni xeberdar edecem Novbeden silmeyin ucun.
-            channel.BasicConsume("hello-queue", false, consumer);
+            channel.BasicConsume(randomQueueName, false, consumer);
+
+            Console.WriteLine("Loglari dinliyorun...");
 
             //Event uzerinnen Qulax asma prosesini yazmaq
             consumer.Received += (object sender, BasicDeliverEventArgs e) =>
