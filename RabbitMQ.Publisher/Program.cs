@@ -7,6 +7,14 @@ namespace RabbitMQ.Publisher
 {
     internal class Program
     {
+        public enum LogNames
+        {
+            Critical = 1,
+            Error = 2,
+            Warning = 3,
+            Info = 4
+        }
+
         static void Main(string[] args)
         {
             //Connection RabbitMQ.
@@ -17,19 +25,35 @@ namespace RabbitMQ.Publisher
             var channel = connection.CreateModel();
 
             //Exchange yaratmag.
-            channel.ExchangeDeclare("logs-fanout", ExchangeType.Fanout, durable: true);
+            channel.ExchangeDeclare("logs-direct", ExchangeType.Direct, durable: true);
+
+            Enum.GetNames(typeof(LogNames)).ToList().ForEach(x =>
+            {
+                var rootKey = $"route-{x}";
+                var queueName = $"direct-queue-{x}";
+                //Novbenin yaradilmasi
+                channel.QueueDeclare(queueName, true, false);
+
+                //Novbenin Exchange bind edilmesi
+                channel.QueueBind(queueName, "logs-direct", rootKey);
+            });
+
 
             Enumerable.Range(1, 50).ToList().ForEach(x =>
             {
-                string message = $"log {x}";
+                LogNames log = (LogNames)new Random().Next(1, 5);
+
+                string message = $"log-type :  {log}";
 
                 //Mesaji byte-lara ceviririk
                 var messageBody = Encoding.UTF8.GetBytes(message);
 
-                //messaji Novbeye gonderirik
-                channel.BasicPublish("logs-fanout","", null, messageBody);
+                var rootKey = $"route-{log}";
 
-                Console.WriteLine($"Sended message: {message}");
+                //messaji Novbeye gonderirik
+                channel.BasicPublish("logs-direct", rootKey, null, messageBody);
+
+                Console.WriteLine($"Sended log: {message}");
             });
 
             Console.ReadLine();
