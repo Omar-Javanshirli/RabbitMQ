@@ -22,10 +22,15 @@ namespace RabbitMQ.Subscriber
             channel.BasicQos(0, 1, false);
 
             var consumer = new EventingBasicConsumer(channel);
-            var queueName = "direct-queue-Error";
+            var queueName = channel.QueueDeclare().QueueName;
 
+            var routeKey = "*.Error.*"; //ortasinda Error olanlari bildirir evveli ve sonunun onemi yoxdur
+            var routeKey2 = "*.*.Warning"; //sonu Warningle bitinleri bildirir.
+            var routeKey3 = "Info.#"; //Evveli Info olsun sonu ne olur olsun.
 
-            Console.WriteLine("Loglari dinliyorun...");
+            channel.QueueBind(queueName, "logs-topic", routeKey3);
+
+            Console.WriteLine("Loglari dinliyorun..."); 
             channel.BasicConsume(queueName, false, consumer);
 
             consumer.Received += (object sender, BasicDeliverEventArgs e) =>
@@ -34,8 +39,6 @@ namespace RabbitMQ.Subscriber
 
                  Thread.Sleep(1500);
                  Console.WriteLine("Gelen mesaj: " + message);
-
-                 //File.AppendAllText("log-critical.txt", message + "\n");
 
                  channel.BasicAck(e.DeliveryTag, false);
              };

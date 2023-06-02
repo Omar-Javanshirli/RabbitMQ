@@ -14,7 +14,6 @@ namespace RabbitMQ.Publisher
             Warning = 3,
             Info = 4
         }
-
         static void Main(string[] args)
         {
             //Connection RabbitMQ.
@@ -25,34 +24,24 @@ namespace RabbitMQ.Publisher
             var channel = connection.CreateModel();
 
             //Exchange yaratmag.
-            channel.ExchangeDeclare("logs-direct", ExchangeType.Direct, durable: true);
-
-            Enum.GetNames(typeof(LogNames)).ToList().ForEach(x =>
-            {
-                var rootKey = $"route-{x}";
-                var queueName = $"direct-queue-{x}";
-                //Novbenin yaradilmasi
-                channel.QueueDeclare(queueName, true, false);
-
-                //Novbenin Exchange bind edilmesi
-                channel.QueueBind(queueName, "logs-direct", rootKey);
-            });
+            channel.ExchangeDeclare("logs-topic", ExchangeType.Topic, durable: true);
 
 
+            Random rmd = new Random();
             Enumerable.Range(1, 50).ToList().ForEach(x =>
             {
-                LogNames log = (LogNames)new Random().Next(1, 5);
+                LogNames log1 = (LogNames)rmd.Next(1, 5);
+                LogNames log2 = (LogNames)rmd.Next(1, 5);
+                LogNames log3 = (LogNames)rmd.Next(1, 5);
 
-                string message = $"log-type :  {log}";
+                var rootKey = $"{log1}.{log2}.{log3}";
+                string message = $"log-type :  {log1}-{log2}-{log3}";
 
                 //Mesaji byte-lara ceviririk
                 var messageBody = Encoding.UTF8.GetBytes(message);
 
-                var rootKey = $"route-{log}";
-
                 //messaji Novbeye gonderirik
-                channel.BasicPublish("logs-direct", rootKey, null, messageBody);
-
+                channel.BasicPublish("logs-topic", rootKey, null, messageBody);
                 Console.WriteLine($"Sended log: {message}");
             });
 
