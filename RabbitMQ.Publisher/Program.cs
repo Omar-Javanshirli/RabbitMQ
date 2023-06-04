@@ -31,6 +31,7 @@ namespace RabbitMQ.Publisher
             {
                 var rootKey = $"route-{x}";
                 var queueName = $"direct-queue-{x}";
+
                 //Novbenin yaradilmasi
                 channel.QueueDeclare(queueName, true, false);
 
