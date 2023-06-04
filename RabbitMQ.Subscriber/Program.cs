@@ -42,7 +42,7 @@ namespace RabbitMQ.Subscriber
             //bool AutoAck => adli ikinci paremtire Eger ki True versek  RabbitMQ Subscribere bir mesaj gonderiyi zaman
             //bu mesaj dogruda olsa yanlisda olsa Novbeden silinecek. Eger ki bunu false versey biz demis oluruq ki 
             //sen bunu novbeden silme eger ki mesaj dogru olsa men seni xeberdar edecem Novbeden silmeyin ucun.
-            channel.BasicConsume("hello-queue", false, consumer);
+            channel.BasicConsume(queue: "hello-queue", autoAck: false, consumer: consumer);
 
             //Event uzerinnen Qulax asma prosesini yazmaq
             consumer.Received += (object sender, BasicDeliverEventArgs e) =>
@@ -57,7 +57,7 @@ namespace RabbitMQ.Subscriber
                 //Sildikden sora burada ikinci parametre olaraq Multiple deyeri var. Eger buna true desek
                 //o an hell edilmis ama RabbitMQ-ya catmamis basqa mesajdar varsa onun melumatlarini
                 //RabbitMQ-ya xebardar eder.
-                channel.BasicAck(e.DeliveryTag,false);
+                channel.BasicAck(deliveryTag:e.DeliveryTag,multiple:false);
             };
 
             Console.ReadLine();
