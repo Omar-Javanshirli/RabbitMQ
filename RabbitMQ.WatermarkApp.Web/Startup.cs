@@ -32,7 +32,8 @@ namespace RabbitMQ.WatermarkApp.Web
             {
                 return new ConnectionFactory()
                 {
-                    Uri = new Uri(Configuration.GetConnectionString("RabbitMQ"))
+                    Uri = new Uri(Configuration.GetConnectionString("RabbitMQ")),
+                    DispatchConsumersAsync = true
                 };
             });
 

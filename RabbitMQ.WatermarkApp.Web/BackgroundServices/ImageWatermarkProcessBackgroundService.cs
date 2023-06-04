@@ -61,7 +61,7 @@ namespace RabbitMQ.WatermarkApp.Web.BackgroundServices
                 //Sekil uzerine yazi yaza bilemey ucun Graphics classina ehtiyacimiz olur.
                 using var graphic = Graphics.FromImage(img);
 
-                var font = new Font(FontFamily.GenericSerif, 32, FontStyle.Bold, GraphicsUnit.Pixel);
+                var font = new Font(FontFamily.GenericSerif, 42, FontStyle.Bold, GraphicsUnit.Pixel);
                 var textSize = graphic.MeasureString(websiteName, font);
                 var color = Color.FromArgb(128, 255, 255, 255);
                 var brush = new SolidBrush(color);
@@ -76,10 +76,9 @@ namespace RabbitMQ.WatermarkApp.Web.BackgroundServices
 
                 this.channel.BasicAck(@event.DeliveryTag, false);
             }
-            catch (System.Exception)
+            catch (System.Exception ex)
             {
-
-                throw;
+                this.logger.LogError(ex.Message);
             }
            return Task.CompletedTask;
         }
