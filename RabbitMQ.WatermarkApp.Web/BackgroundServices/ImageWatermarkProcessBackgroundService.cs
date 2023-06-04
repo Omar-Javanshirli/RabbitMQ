@@ -4,6 +4,7 @@ using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using RabbitMQ.WatermarkApp.Web.Models;
 using RabbitMQ.WatermarkApp.Web.Servicies;
+using System;
 using System.Drawing;
 using System.IO;
 using System.Text;
@@ -46,41 +47,47 @@ namespace RabbitMQ.WatermarkApp.Web.BackgroundServices
 
         private Task Cunsumer_Received(object sender, BasicDeliverEventArgs @event)
         {
-            try
-            {
-                var imageCreateEvent = JsonSerializer.Deserialize<ProductImageCreatedEvent>
-               (Encoding.UTF8.GetString(@event.Body.ToArray()));
+            //try
+            //{
+          
+            //catch (Exception ex)
+            //{
 
-                var websiteName = "www.myWeb.com";
+            //    this.logger.LogError(ex.Message);
+            //}
 
-                var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Images", imageCreateEvent.ImageName);
+            var productImageCreatedEvent = JsonSerializer.Deserialize<ProductImageCreatedEvent>(Encoding.UTF8.GetString(@event.Body.ToArray()));
 
-                //Iamge.FromFile => path gonderirik ve elaqeli File Elde edirik.
-                using var img = Image.FromFile(path);
 
-                //Sekil uzerine yazi yaza bilemey ucun Graphics classina ehtiyacimiz olur.
-                using var graphic = Graphics.FromImage(img);
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Images", productImageCreatedEvent.ImageName);
 
-                var font = new Font(FontFamily.GenericSerif, 42, FontStyle.Bold, GraphicsUnit.Pixel);
-                var textSize = graphic.MeasureString(websiteName, font);
-                var color = Color.FromArgb(128, 255, 255, 255);
-                var brush = new SolidBrush(color);
-                var position = new Point(img.Width - ((int)textSize.Width + 30), img.Height - ((int)textSize.Height + 30));
+            var siteName = "wwww.mysite.com";
 
-                graphic.DrawString(websiteName, font, brush, position);
+            using var img = Image.FromFile(path);
 
-                img.Save("wwwroot/Images/Watermark/" + imageCreateEvent.ImageName);
+            using var graphic = Graphics.FromImage(img);
 
-                img.Dispose();
-                graphic.Dispose();
+            var font = new Font(FontFamily.GenericMonospace, 40, FontStyle.Bold, GraphicsUnit.Pixel);
 
-                this.channel.BasicAck(@event.DeliveryTag, false);
-            }
-            catch (System.Exception ex)
-            {
-                this.logger.LogError(ex.Message);
-            }
-           return Task.CompletedTask;
+            var textSize = graphic.MeasureString(siteName, font);
+
+            var color = Color.FromArgb(128, 255, 255, 255);
+            var brush = new SolidBrush(color);
+
+            var position = new Point(img.Width - ((int)textSize.Width + 30), img.Height - ((int)textSize.Height + 30));
+
+
+            graphic.DrawString(siteName, font, brush, position);
+
+            img.Save("wwwroot/Images/watermarks/" + productImageCreatedEvent.ImageName);
+
+
+            img.Dispose();
+            graphic.Dispose();
+
+            channel.BasicAck(@event.DeliveryTag, false);
+
+            return Task.CompletedTask;
         }
 
         public override Task StopAsync(CancellationToken cancellationToken)

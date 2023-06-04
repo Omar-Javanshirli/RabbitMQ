@@ -37,6 +37,7 @@ namespace RabbitMQ.WatermarkApp.Web
                 };
             });
 
+
             services.AddSingleton<RabbitMQClientService>();
             services.AddSingleton<RabbitMQPublisher>();
 
