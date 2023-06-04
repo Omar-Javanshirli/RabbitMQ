@@ -1,4 +1,6 @@
+using FileCreateWorkerService.Models;
 using FileCreateWorkerService.Servicies;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -22,6 +24,11 @@ namespace FileCreateWorkerService
                 .ConfigureServices((hostContext, services) =>
                 {
                     IConfiguration Configuration = hostContext.Configuration;
+
+                    services.AddDbContext<NLayerDBContext>(opt =>
+                    {
+                        opt.UseSqlServer(Configuration.GetConnectionString("SqlServer"));
+                    });
 
                     services.AddSingleton(sp =>
                     {
