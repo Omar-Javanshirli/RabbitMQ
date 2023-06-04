@@ -1,16 +1,25 @@
-﻿using Microsoft.Extensions.Hosting;
+﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using RabbitMQ.WatermarkApp.Web.Models;
 using RabbitMQ.WatermarkApp.Web.Servicies;
-using System;
 using System.Drawing;
 using System.IO;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
+using System.Threading.Channels;
 using System.Threading.Tasks;
+
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Drawing.Processing;
+using SixLabors.ImageSharp.Processing;
+
+
+
+
 
 namespace RabbitMQ.WatermarkApp.Web.BackgroundServices
 {
@@ -18,12 +27,14 @@ namespace RabbitMQ.WatermarkApp.Web.BackgroundServices
     {
         private readonly RabbitMQClientService rabbitMQClientService;
         private readonly ILogger<ImageWatermarkProcessBackgroundService> logger;
+        private readonly IWebHostEnvironment webHostEnvironment;
         private IModel channel;
 
-        public ImageWatermarkProcessBackgroundService(RabbitMQClientService rabbitMQClientService, ILogger<ImageWatermarkProcessBackgroundService> logger)
+        public ImageWatermarkProcessBackgroundService(RabbitMQClientService rabbitMQClientService, ILogger<ImageWatermarkProcessBackgroundService> logger, IWebHostEnvironment webHostEnvironment)
         {
             this.rabbitMQClientService = rabbitMQClientService;
             this.logger = logger;
+            this.webHostEnvironment = webHostEnvironment;
         }
 
         public override Task StartAsync(CancellationToken cancellationToken)
@@ -49,15 +60,15 @@ namespace RabbitMQ.WatermarkApp.Web.BackgroundServices
         {
             //try
             //{
-          
+               
+            //}
             //catch (Exception ex)
             //{
-
             //    this.logger.LogError(ex.Message);
             //}
 
-            var productImageCreatedEvent = JsonSerializer.Deserialize<ProductImageCreatedEvent>(Encoding.UTF8.GetString(@event.Body.ToArray()));
 
+            var productImageCreatedEvent = JsonSerializer.Deserialize<ProductImageCreatedEvent>(Encoding.UTF8.GetString(@event.Body.ToArray()));
 
             var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Images", productImageCreatedEvent.ImageName);
 
@@ -85,7 +96,7 @@ namespace RabbitMQ.WatermarkApp.Web.BackgroundServices
             img.Dispose();
             graphic.Dispose();
 
-            channel.BasicAck(@event.DeliveryTag, false);
+            this.channel.BasicAck(@event.DeliveryTag, false);
 
             return Task.CompletedTask;
         }

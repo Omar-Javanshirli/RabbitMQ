@@ -14,12 +14,14 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="5.0.2" />
+    <PackageReference Include="Paket.Core" Version="7.2.1" />
     <PackageReference Include="RabbitMQ.Client" Version="6.5.0" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="3.0.1" />
     <PackageReference Include="System.Drawing.Common" Version="7.0.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="wwwroot\Images\" />
+    <Folder Include="wwwroot\Images\watermarks\" />
   </ItemGroup>
 
 </Project>
