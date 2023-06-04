@@ -38,6 +38,7 @@ namespace RabbitMQ.Web.ExcelCreate
             });
 
             services.AddSingleton<RabbitMQClientService>();
+            services.AddSingleton<RabbitMQPublisher>();
 
             services.AddDbContext<AppDbContext>(options =>
             {
